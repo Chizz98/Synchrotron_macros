@@ -29,6 +29,7 @@ function param_dialog() {
 	title = "Synchprocess parameters";
 	Dialog.create("Synchprocess parameters");
 
+	Dialog.addHelp("https://github.com/Chizz98/Synchrotron_macros/tree/main")
 	Dialog.addMessage("Select input file(s)", 14)
 	Dialog.addMessage("Put in a directory of images if you want to run the macro on all images\nin the directory, for single images use the Image file option.");
 	//ask for in_dir
@@ -41,10 +42,10 @@ function param_dialog() {
 	Dialog.addDirectory("Output directory", "")
 	
 	Dialog.addMessage("Parameters", 14)
-	//choice between absolute or percentile boundaries
-	Dialog.addChoice("Bound type", newArray("Percentile", "Absolute"), "Percentile");
 	//ask for multiplier
 	Dialog.addNumber("Pixel value multiplier", 1000000);
+	//choice between absolute or percentile boundaries
+	Dialog.addChoice("Bound type", newArray("Percentile", "Absolute"), "Percentile");
 	//checkbox for colorscale
 	Dialog.addCheckbox("Add color legend", true);
 	//request LUT lower and upper percentile
