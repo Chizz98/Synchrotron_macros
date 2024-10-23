@@ -89,9 +89,6 @@ function process_image(filename, out_dir, bound_type, lower_bound, upper_bound, 
 
 	//mult values
 	run("Multiply...", "value=&pixel_mult");
-
-	//set image scale
-	run("Set Scale...", "distance=1 known=&scale unit=micron");
 	
 	//params
 	bincount = 256;
@@ -123,6 +120,9 @@ function process_image(filename, out_dir, bound_type, lower_bound, upper_bound, 
 	} else {
 		scale_mult = 1;
 	}
+
+	//set image scale
+	run("Set Scale...", "distance=scale_mult known=&scale unit=micron");
 
 	//resize image to add legend space
 	if (add_colorbar) {
