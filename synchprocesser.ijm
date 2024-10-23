@@ -175,9 +175,13 @@ function main() {
 		files = newArray(1);
 		files[1] = params[9];
 	} else {
-		exit("No valid input files found")
+		exit("No valid input files found");
 	}
 
+	if (!File.exists(params[10])) {
+		 File.makeDirectory(params[10]);
+	}
+	
 	//process files in input directory
 	for (i = 0; i < files.length; ++i) {
 		if (endsWith(files[i], ".tif") || endsWith(files[i], ".tiff")) {
