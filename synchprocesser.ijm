@@ -89,11 +89,11 @@ function param_dialog() {
 	bound_type = Dialog.getChoice();
 	lower_bound = Dialog.getNumber();
 	upper_bound = Dialog.getNumber();
-	pixel_scale = Dialog.getNumber();
 	color_scale = Dialog.getCheckbox();
 	scale_decimals = Dialog.getNumber();
 	size_scale = Dialog.getCheckbox();
 	scale_unit = Dialog.getString();
+	pixel_scale = Dialog.getNumber();
 	scalebar_size = Dialog.getNumber();
 	width_pad = Dialog.getNumber();
 	height_pad = Dialog.getNumber();
