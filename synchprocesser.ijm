@@ -52,10 +52,11 @@ function param_dialog() {
 	Dialog.addNumber("LUT lower bound", 20);
 	Dialog.addNumber("LUT upper bound", 99.9);
 	//checkbox for scalebar
-	Dialog.addCheckbox("Add size bar", true)
+	Dialog.addCheckbox("Add size bar", true);
 	//request pixel size
-	Dialog.addNumber("Scale (um/pixel)", 0);
-	Dialog.addNumber("Scalebar width", 10); 
+	Dialog.addString("Unit", "millimeter");
+	Dialog.addNumber("Units per pixel", 0);
+	Dialog.addNumber("Scalebar width", 5); 
 	//request multipliers
 	Dialog.addMessage("If you add the scalebar or color legend, the macro will add black padding\nto the height and width of the image. These parameters control how much\npadding gets added (0.2 equals 20% of the original image)");
 	Dialog.addNumber("Width padding", 0.2);
@@ -73,15 +74,16 @@ function param_dialog() {
 	pixel_scale = Dialog.getNumber();
 	color_scale = Dialog.getCheckbox();
 	size_scale = Dialog.getCheckbox();
+	scale_unit = Dialog.getString();
 	scalebar_size = Dialog.getNumber();
 	width_pad = Dialog.getNumber();
 	height_pad = Dialog.getNumber();
 
-	return newArray(bound_type, lower_bound, upper_bound, pixel_scale, color_scale, size_scale, scalebar_size, pixel_mult, in_dir, in_file, out_dir, width_pad, height_pad);
+	return newArray(bound_type, lower_bound, upper_bound, pixel_scale, color_scale, size_scale, scalebar_size, pixel_mult, in_dir, in_file, out_dir, width_pad, height_pad, scale_unit);
 }
 
 
-function process_image(filename, out_dir, bound_type, lower_bound, upper_bound, scale, add_colorbar, add_scalebar, scalebar_size, pixel_mult, width_pad, height_pad) {
+function process_image(filename, out_dir, bound_type, lower_bound, upper_bound, scale, add_colorbar, add_scalebar, scalebar_size, pixel_mult, width_pad, height_pad, scale_unit) {
 	//worker function for one image
 	
 	//open file
@@ -122,7 +124,7 @@ function process_image(filename, out_dir, bound_type, lower_bound, upper_bound, 
 	}
 
 	//set image scale
-	run("Set Scale...", "distance=scale_mult known=&scale unit=micron");
+	run("Set Scale...", "distance=scale_mult known=&scale unit=&scale_unit");
 
 	//resize image to add legend space
 	if (add_colorbar) {
@@ -185,7 +187,7 @@ function main() {
 	//process files in input directory
 	for (i = 0; i < files.length; ++i) {
 		if (endsWith(files[i], ".tif") || endsWith(files[i], ".tiff")) {
-			process_image(files[i], params[10], params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7], params[11], params[12]);
+			process_image(files[i], params[10], params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7], params[11], params[12], params[13]);
 		}
 	}
 	setBatchMode(false);
