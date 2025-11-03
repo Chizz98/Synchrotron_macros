@@ -46,7 +46,7 @@ function param_dialog() {
 	//ask for multiplier DEPRECATED, SET TO CONVERT TO MICROGRAM BY DEFAULT
 	//Dialog.addNumber("Pixel value multiplier", 1000000);
 	//ask for output unit
-	Dialog.addChoice("Legend units", newArray("units/cm2", "units/gram"), "units/gram");
+	Dialog.addChoice("Legend units", newArray("microgram/cm2", "microgram/gram"), "microgram/gram");
 	//ask for sample thickness
 	Dialog.addNumber("Sample thickness (micron)", 300);
 	//ask for sample density
@@ -62,6 +62,7 @@ function param_dialog() {
 	Dialog.addMessage("Legend settings", 13);
 	//checkbox for colorscale
 	Dialog.addCheckbox("Add color legend", true);
+	Dialog.addNumber("Decimal places (-2 for automatic formatting)", 0)
 
 	//checkbox for scalebar
 	Dialog.addCheckbox("Add size bar", true);
@@ -90,17 +91,18 @@ function param_dialog() {
 	upper_bound = Dialog.getNumber();
 	pixel_scale = Dialog.getNumber();
 	color_scale = Dialog.getCheckbox();
+	scale_decimals = Dialog.getNumber();
 	size_scale = Dialog.getCheckbox();
 	scale_unit = Dialog.getString();
 	scalebar_size = Dialog.getNumber();
 	width_pad = Dialog.getNumber();
 	height_pad = Dialog.getNumber();
 
-	return newArray(bound_type, lower_bound, upper_bound, pixel_scale, color_scale, size_scale, scalebar_size, pixel_mult, in_dir, in_file, out_dir, width_pad, height_pad, scale_unit, output_units, sample_thickness, sample_density);
+	return newArray(bound_type, lower_bound, upper_bound, pixel_scale, color_scale, size_scale, scalebar_size, pixel_mult, in_dir, in_file, out_dir, width_pad, height_pad, scale_unit, output_units, sample_thickness, sample_density, scale_decimals);
 }
 
 
-function process_image(filename, out_dir, bound_type, lower_bound, upper_bound, scale, add_colorbar, add_scalebar, scalebar_size, pixel_mult, width_pad, height_pad, scale_unit, output_units, sample_thickness, sample_density) {
+function process_image(filename, out_dir, bound_type, lower_bound, upper_bound, scale, add_colorbar, add_scalebar, scalebar_size, pixel_mult, width_pad, height_pad, scale_unit, output_units, sample_thickness, sample_density, scale_decimals) {
 	//worker function for one image
 	
 	//open file
@@ -110,7 +112,7 @@ function process_image(filename, out_dir, bound_type, lower_bound, upper_bound, 
 	run("Multiply...", "value=&pixel_mult");
 
 	//unit conversion logic
-	if (output_units == "units/gram") {
+	if (output_units == "microgram/gram") {
 		thickness_cm = sample_thickness * 1e-4;
 		pixel_unit_mult = 1 / (sample_density * thickness_cm);
 		run("Multiply...", "value=&pixel_unit_mult");
@@ -169,7 +171,7 @@ function process_image(filename, out_dir, bound_type, lower_bound, upper_bound, 
 	cbar_zoom = (old_width + old_height) / 1000;
 	font_size_cb = 12;
 	if (add_colorbar) {
-		run("Calibration Bar...", "location=[Upper Right] fill=None label=White number=5 decimal=-2 font=&font_size_cb zoom=&cbar_zoom bold overlay");
+		run("Calibration Bar...", "location=[Upper Right] fill=None label=White number=5 decimal=&scale_decimals font=&font_size_cb zoom=&cbar_zoom bold overlay");
 	}
 
 	//Add scale bar
@@ -211,7 +213,7 @@ function main() {
 	//process files in input directory
 	for (i = 0; i < files.length; ++i) {
 		if (endsWith(files[i], ".tif") || endsWith(files[i], ".tiff")) {
-			process_image(files[i], params[10], params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7], params[11], params[12], params[13], params[14], params[15], params[16]);
+			process_image(files[i], params[10], params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7], params[11], params[12], params[13], params[14], params[15], params[16], params[17]);
 		}
 	}
 	setBatchMode(false);
