@@ -30,7 +30,7 @@ function param_dialog() {
 	Dialog.create("Synchprocess parameters");
 
 	Dialog.addHelp("https://github.com/Chizz98/Synchrotron_macros/tree/main")
-	Dialog.addMessage("Select input file(s)", 14)
+	Dialog.addMessage("Select input file(s)", 14);
 	Dialog.addMessage("Put in a directory of images if you want to run the macro on all images\nin the directory, for single images use the Image file option.");
 	//ask for in_dir
 	Dialog.addDirectory("Images directory", "");
@@ -38,27 +38,41 @@ function param_dialog() {
 	Dialog.addFile("Image file", "");
 	
 	//output dir
-	Dialog.addMessage("Select output directory", 14)
+	Dialog.addMessage("Select output directory", 14);
 	Dialog.addDirectory("Output directory", "")
 	
-	Dialog.addMessage("Parameters", 14)
-	//ask for multiplier
-	Dialog.addNumber("Pixel value multiplier", 1000000);
+	Dialog.addMessage("Parameters", 14);
+	Dialog.addMessage("Output units", 13);
+	//ask for multiplier DEPRECATED, SET TO CONVERT TO MICROGRAM BY DEFAULT
+	//Dialog.addNumber("Pixel value multiplier", 1000000);
+	//ask for output unit
+	Dialog.addChoice("Legend units", newArray("units/cm2", "units/gram"), "units/gram");
+	//ask for sample thickness
+	Dialog.addNumber("Sample thickness (micron)", 300);
+	//ask for sample density
+	Dialog.addNumber("Sample density (g/cm3)", 0.8);
+	
+	Dialog.addMessage("False color boundary settings", 13);
 	//choice between absolute or percentile boundaries
 	Dialog.addChoice("Bound type", newArray("Percentile", "Absolute"), "Percentile");
-	//checkbox for colorscale
-	Dialog.addCheckbox("Add color legend", true);
 	//request LUT lower and upper percentile
 	Dialog.addNumber("LUT lower bound", 20);
 	Dialog.addNumber("LUT upper bound", 99.9);
+
+	Dialog.addMessage("Legend settings", 13);
+	//checkbox for colorscale
+	Dialog.addCheckbox("Add color legend", true);
+
 	//checkbox for scalebar
 	Dialog.addCheckbox("Add size bar", true);
+
+	Dialog.addMessage("Set pixel size and units for scalebar sizing.", 11);
 	//request pixel size
 	Dialog.addString("Unit", "millimeter");
 	Dialog.addNumber("Units per pixel", 0);
 	Dialog.addNumber("Scalebar width", 5); 
 	//request multipliers
-	Dialog.addMessage("If you add the scalebar or color legend, the macro will add black padding\nto the height and width of the image. These parameters control how much\npadding gets added (0.2 equals 20% of the original image)");
+	Dialog.addMessage("If you add the scalebar or color legend, the macro will add black padding\nto the height and width of the image. These parameters control how much\npadding gets added (0.2 equals 20% of the original image)", 11);
 	Dialog.addNumber("Width padding", 0.2);
 	Dialog.addNumber("Height padding", 0.2);
 	Dialog.show();
@@ -67,8 +81,11 @@ function param_dialog() {
 	in_dir = Dialog.getString();
 	in_file = Dialog.getString();
 	out_dir = Dialog.getString();
+	pixel_mult = 1000000;
+	output_units = Dialog.getChoice();
+	sample_thickness = Dialog.getNumber();
+	sample_density = Dialog.getNumber();
 	bound_type = Dialog.getChoice();
-	pixel_mult = Dialog.getNumber();
 	lower_bound = Dialog.getNumber();
 	upper_bound = Dialog.getNumber();
 	pixel_scale = Dialog.getNumber();
@@ -79,11 +96,11 @@ function param_dialog() {
 	width_pad = Dialog.getNumber();
 	height_pad = Dialog.getNumber();
 
-	return newArray(bound_type, lower_bound, upper_bound, pixel_scale, color_scale, size_scale, scalebar_size, pixel_mult, in_dir, in_file, out_dir, width_pad, height_pad, scale_unit);
+	return newArray(bound_type, lower_bound, upper_bound, pixel_scale, color_scale, size_scale, scalebar_size, pixel_mult, in_dir, in_file, out_dir, width_pad, height_pad, scale_unit, output_units, sample_thickness, sample_density);
 }
 
 
-function process_image(filename, out_dir, bound_type, lower_bound, upper_bound, scale, add_colorbar, add_scalebar, scalebar_size, pixel_mult, width_pad, height_pad, scale_unit) {
+function process_image(filename, out_dir, bound_type, lower_bound, upper_bound, scale, add_colorbar, add_scalebar, scalebar_size, pixel_mult, width_pad, height_pad, scale_unit, output_units, sample_thickness, sample_density) {
 	//worker function for one image
 	
 	//open file
@@ -91,6 +108,13 @@ function process_image(filename, out_dir, bound_type, lower_bound, upper_bound, 
 
 	//mult values
 	run("Multiply...", "value=&pixel_mult");
+
+	//unit conversion logic
+	if (output_units == "units/gram") {
+		thickness_cm = sample_thickness * 1e-4;
+		pixel_unit_mult = 1 / (sample_density * thickness_cm);
+		run("Multiply...", "value=&pixel_unit_mult");
+	}
 	
 	//params
 	bincount = 256;
@@ -187,7 +211,7 @@ function main() {
 	//process files in input directory
 	for (i = 0; i < files.length; ++i) {
 		if (endsWith(files[i], ".tif") || endsWith(files[i], ".tiff")) {
-			process_image(files[i], params[10], params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7], params[11], params[12], params[13]);
+			process_image(files[i], params[10], params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7], params[11], params[12], params[13], params[14], params[15], params[16]);
 		}
 	}
 	setBatchMode(false);
