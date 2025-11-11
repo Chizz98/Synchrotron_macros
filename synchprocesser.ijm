@@ -46,7 +46,7 @@ function param_dialog() {
 	//ask for multiplier DEPRECATED, SET TO CONVERT TO MICROGRAM BY DEFAULT
 	//Dialog.addNumber("Pixel value multiplier", 1000000);
 	//ask for output unit
-	Dialog.addChoice("Legend units", newArray("microgram/cm2", "microgram/gram"), "microgram/gram");
+	Dialog.addChoice("Legend units", newArray("microgram/cm2", "microgram/gram", "microgram/gram (tomography)"), "microgram/gram");
 	//ask for sample thickness
 	Dialog.addNumber("Sample thickness (micron)", 300);
 	//ask for sample density
@@ -116,6 +116,9 @@ function process_image(filename, out_dir, bound_type, lower_bound, upper_bound, 
 		thickness_cm = sample_thickness * 1e-4;
 		pixel_unit_mult = 1 / (sample_density * thickness_cm);
 		run("Multiply...", "value=&pixel_unit_mult");
+	} else if (output_units == "microgram/gram (tomography)") {
+		print("tomo_test");
+		pixel_unit_mult = 1 / sample_density;
 	}
 	
 	//params
